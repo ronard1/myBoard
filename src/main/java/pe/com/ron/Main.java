@@ -1,6 +1,7 @@
 package pe.com.ron;
 
 import pe.com.ron.persistence.migration.MigrationStrategy;
+import pe.com.ron.ui.MainMenu;
 
 import java.sql.SQLException;
 
@@ -13,5 +14,6 @@ public class Main {
             new MigrationStrategy(connection).executeMigration();
         }
         //System.out.println("hola");
+        new MainMenu().execute();
     }
 }
