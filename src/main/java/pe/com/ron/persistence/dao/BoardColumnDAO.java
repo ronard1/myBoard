@@ -33,7 +33,22 @@ public class BoardColumnDAO {
     }
 
     public List<BoardColumnEntity> findByBoardId(final Long boardId) throws SQLException{
-        return null;
+        List<BoardColumnEntity> entities = new ArrayList<>();
+        var sql = "SELECT id, name, `order`, kind FROM BOARDS_COLUMNS WHERE board_id = ? ORDER BY `order`";
+        try(var statement = connection.prepareStatement(sql)){
+            statement.setLong(1, boardId);
+            statement.executeQuery();
+            var resultSet = statement.getResultSet();
+            while (resultSet.next()){
+                var entity = new BoardColumnEntity();
+                entity.setId(resultSet.getLong("id"));
+                entity.setName(resultSet.getString("name"));
+                entity.setOrder(resultSet.getInt("order"));
+                entity.setKind(findByName(resultSet.getString("kind")));
+                entities.add(entity);
+            }
+            return entities;
+        }
     }
 
 }
