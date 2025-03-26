@@ -1,6 +1,7 @@
 package pe.com.ron.ui;
 
 import lombok.AllArgsConstructor;
+import pe.com.ron.dto.BoardColumnInfoDTO;
 import pe.com.ron.persistence.entity.BoardColumnEntity;
 import pe.com.ron.persistence.entity.BoardEntity;
 import pe.com.ron.persistence.entity.CardEntity;
@@ -69,7 +70,17 @@ public class BoardMenu {
         }
     }
 
-    private void moveCardToNextColumn() {
+    private void moveCardToNextColumn() throws SQLException {
+        System.out.println("Informe o id do card que deseja mover para a próxima coluna");
+        var cardId = scanner.nextLong();
+        var boardColumnsInfo = entity.getBoardColumns().stream()
+                .map(bc -> new BoardColumnInfoDTO(bc.getId(), bc.getOrder(), bc.getKind()))
+                .toList();
+        try(var connection = getConnection()){
+            new CardService(connection).moveToNextColumn(cardId, boardColumnsInfo);
+        } catch (RuntimeException ex){
+            System.out.println(ex.getMessage());
+        }
     }
 
     private void blockCard() {
