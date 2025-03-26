@@ -2,6 +2,7 @@ package pe.com.ron.persistence.dao;
 
 import com.mysql.cj.jdbc.StatementImpl;
 import lombok.RequiredArgsConstructor;
+import pe.com.ron.dto.BoardColumnDTO;
 import pe.com.ron.persistence.entity.BoardColumnEntity;
 
 import java.sql.Connection;
@@ -48,6 +49,37 @@ public class BoardColumnDAO {
                 entities.add(entity);
             }
             return entities;
+        }
+    }
+
+    public List<BoardColumnDTO> findByBoardIdWithDetails(final Long boardId) throws SQLException {
+        List<BoardColumnDTO> dtos = new ArrayList<>();
+        var sql =
+                """
+                SELECT bc.id,
+                       bc.name,
+                       bc.kind,
+                       (SELECT COUNT(c.id)
+                               FROM CARDS c
+                              WHERE c.board_column_id = bc.id) cards_amount
+                  FROM BOARDS_COLUMNS bc
+                 WHERE board_id = ?
+                 ORDER BY `order`;
+                """;
+        try(var statement = connection.prepareStatement(sql)){
+            statement.setLong(1, boardId);
+            statement.executeQuery();
+            var resultSet = statement.getResultSet();
+            while (resultSet.next()){
+                var dto = new BoardColumnDTO(
+                        resultSet.getLong("bc.id"),
+                        resultSet.getString("bc.name"),
+                        findByName(resultSet.getString("bc.kind")),
+                        resultSet.getInt("cards_amount")
+                );
+                dtos.add(dto);
+            }
+            return dtos;
         }
     }
 
