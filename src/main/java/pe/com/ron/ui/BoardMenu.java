@@ -3,9 +3,11 @@ package pe.com.ron.ui;
 import lombok.AllArgsConstructor;
 import pe.com.ron.persistence.entity.BoardColumnEntity;
 import pe.com.ron.persistence.entity.BoardEntity;
+import pe.com.ron.persistence.entity.CardEntity;
 import pe.com.ron.service.BoardColumnQueryService;
 import pe.com.ron.service.BoardQueryService;
 import pe.com.ron.service.CardQueryService;
+import pe.com.ron.service.CardService;
 
 import java.sql.SQLException;
 import java.util.Scanner;
@@ -55,7 +57,16 @@ public class BoardMenu {
             }
     }
 
-    private void createCard() {
+    private void createCard() throws SQLException{
+        var card = new CardEntity();
+        System.out.println("Informe o título do card");
+        card.setTitle(scanner.next());
+        System.out.println("Informe a descrição do card");
+        card.setDescription(scanner.next());
+        card.setBoardColumn(entity.getInitialColumn());
+        try(var connection = getConnection()){
+            new CardService(connection).create(card);
+        }
     }
 
     private void moveCardToNextColumn() {

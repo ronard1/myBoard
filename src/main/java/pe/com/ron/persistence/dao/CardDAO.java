@@ -1,7 +1,9 @@
 package pe.com.ron.persistence.dao;
 
+import com.mysql.cj.jdbc.StatementImpl;
 import lombok.AllArgsConstructor;
 import pe.com.ron.dto.CardDetailsDTO;
+import pe.com.ron.persistence.entity.CardEntity;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -14,6 +16,21 @@ import static pe.com.ron.persistence.converter.OffsetDateTimeConverter.toOffsetD
 public class CardDAO {
 
     private Connection connection;
+
+    public CardEntity insert(final CardEntity entity) throws SQLException {
+        var sql = "INSERT INTO CARDS (title, description, board_column_id) values (?, ?, ?);";
+        try(var statement = connection.prepareStatement(sql)){
+            var i = 1;
+            statement.setString(i ++, entity.getTitle());
+            statement.setString(i ++, entity.getDescription());
+            statement.setLong(i, entity.getBoardColumn().getId());
+            statement.executeUpdate();
+            if (statement instanceof StatementImpl impl){
+                entity.setId(impl.getLastInsertID());
+            }
+        }
+        return entity;
+    }
 
     public Optional<CardDetailsDTO> findById(final Long id) throws SQLException {
         var sql =
@@ -57,4 +74,5 @@ public class CardDAO {
         }
         return Optional.empty();
     }
+
 }
